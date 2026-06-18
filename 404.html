@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Aerova Egypt | ايروفا</title>
+  <meta name="description" content="Aerova Egypt - منتجات عملية مختارة بعناية لحياة أسهل كل يوم" />
+  <link rel="icon" href="/assets/logo.png" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="ambient-bg" aria-hidden="true"><span></span><span></span><span></span><i></i></div>
+
+  <header class="topbar premium-nav">
+    <a class="brand" href="/" aria-label="Aerova Home"><img src="/assets/logo.png" alt="Aerova logo"><span>AEROVA</span></a>
+    <nav>
+      <a href="#products">المنتجات</a>
+      <a href="#why">ليه Aerova</a>
+      <a href="#promise">خدمتنا</a>
+      <a href="/checkout">إتمام الطلب</a>
+    </nav>
+    <button class="cart-btn" id="openCart">السلة <b id="cartCount">0</b></button>
+  </header>
+
+  <main id="home">
+    <section class="hero premium-hero reveal">
+      <div class="hero-copy glass-panel">
+        <div class="eyebrow">AEROVA EGYPT</div>
+        <h1>منتجات ذكية<br>بتخلي يومك <span>أسهل</span></h1>
+        <p>متجر منتجات عملية مختارة بعناية: للبيت، المكتب، السفر، والعربية. كل منتج له صفحة مستقلة، سلة واضحة، وتشيك أوت سريع بالدفع عند الاستلام.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="#products">تسوق الآن</a>
+          <button class="btn ghost" id="heroCartBtn" type="button">افتح السلة</button>
+        </div>
+        <div class="trust-row">
+          <span>دفع عند الاستلام</span>
+          <span>تأكيد قبل الشحن</span>
+          <span>منتجات مختارة</span>
+        </div>
+      </div>
+      <div class="hero-showcase float-soft">
+        <img src="/assets/cover.png" alt="Aerova brand cover">
+        <div class="floating-card top">Smart Picks</div>
+        <div class="floating-card bottom">A smoother daily life</div>
+      </div>
+    </section>
+
+    <section class="features premium-features" id="why">
+      <article class="reveal"><b>منتجات مفيدة</b><span>اختيارات بتحل مشكلة فعلية في يومك.</span></article>
+      <article class="reveal"><b>طلب سريع</b><span>ضيف للسلة وكمل بياناتك بسهولة.</span></article>
+      <article class="reveal"><b>دفع عند الاستلام</b><span>استلم الأول وادفع بعد التأكيد.</span></article>
+      <article class="reveal"><b>تحديث مستمر</b><span>منتجات جديدة مناسبة للسوق.</span></article>
+    </section>
+
+    <section class="section-head reveal" id="products">
+      <span>منتجاتنا</span>
+      <h2>منتجات مختارة لحياة أسهل</h2>
+      <p>تصفح المنتجات، افتح صفحة كل منتج، وضيف اللي يناسبك للسلة.</p>
+    </section>
+
+    <section class="shop-toolbar reveal" aria-label="بحث وفلترة المنتجات">
+      <div class="search-box">
+        <span>بحث</span>
+        <input id="productSearch" type="search" placeholder="اكتب اسم المنتج أو القسم...">
+      </div>
+      <div class="filters">
+        <button class="filter active" data-cat="all">الكل</button>
+        <button class="filter" data-cat="للبيت">للبيت</button>
+        <button class="filter" data-cat="المكتب">المكتب</button>
+        <button class="filter" data-cat="السفر">السفر</button>
+        <button class="filter" data-cat="السيارة">السيارة</button>
+      </div>
+      <select id="sortProducts" aria-label="ترتيب المنتجات">
+        <option value="default">الترتيب الافتراضي</option>
+        <option value="low">السعر: الأقل أولًا</option>
+        <option value="high">السعر: الأعلى أولًا</option>
+      </select>
+    </section>
+
+    <section class="products-grid" id="productsGrid"></section>
+
+    <section class="brand-promise reveal" id="promise">
+      <div>
+        <span class="eyebrow">AEROVA PROMISE</span>
+        <h2>شراء بسيط، شكل واضح، وخدمة محترمة</h2>
+        <p>Aerova متجر عام لمنتجات عملية ومفيدة. نقدر نضيف منتجات جديدة بسهولة من لوحة التحكم، وكل منتج يظهر بصفحة خاصة وتفاصيل واضحة.</p>
+      </div>
+      <div class="promise-list">
+        <span>01 — سعر واضح</span>
+        <span>02 — سلة وطلب مباشر</span>
+        <span>03 — تأكيد قبل الشحن</span>
+      </div>
+    </section>
+  </main>
+
+  <aside class="cart-drawer" id="cartDrawer" aria-label="سلة المشتريات">
+    <div class="cart-head"><h3>سلة المشتريات</h3><button id="closeCart" aria-label="إغلاق">×</button></div>
+    <div id="cartItems" class="cart-items"></div>
+    <div class="cart-total"><span>الإجمالي</span><b id="cartTotal">0 جنيه</b></div>
+    <a class="btn primary full" href="/checkout" id="goCheckout">إتمام الطلب</a>
+  </aside>
+  <div class="overlay" id="overlay"></div>
+
+  <footer><img src="/assets/logo.png" alt="Aerova"><p>Aerova Egypt — اختيارات عملية كل يوم</p></footer>
+  <script src="/app.js"></script>
+</body>
+</html>

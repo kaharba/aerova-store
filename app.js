@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>إتمام الطلب | Aerova Egypt</title>
+  <meta name="description" content="إتمام الطلب - Aerova Egypt" />
+  <link rel="icon" href="/assets/logo.png" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body class="checkout-page">
+  <div class="ambient-bg" aria-hidden="true"><span></span><span></span><span></span><i></i></div>
+  <header class="topbar checkout-topbar premium-nav">
+    <a class="brand" href="/"><img src="/assets/logo.png" alt="Aerova logo"><span>AEROVA</span></a>
+    <nav><a href="/">رجوع للمتجر</a></nav>
+  </header>
+
+  <main class="checkout-layout">
+    <section class="checkout-hero premium-checkout-hero reveal">
+      <div>
+        <span class="eyebrow">SECURE CHECKOUT</span>
+        <h1>كمّل طلبك في دقيقة</h1>
+        <p>راجع السلة، اكتب بيانات التوصيل، وهنأكد معاك قبل الشحن.</p>
+      </div>
+      <div class="checkout-steps">
+        <span>راجع السلة</span>
+        <span>اكتب البيانات</span>
+        <span>استلم وادفع</span>
+      </div>
+    </section>
+
+    <section class="checkout-grid">
+      <form id="checkoutForm" class="checkout-card checkout-form-card premium-form reveal">
+        <div class="section-head mini">
+          <span>بيانات التوصيل</span>
+          <h2>معلومات الطلب</h2>
+          <p>اكتب بياناتك صح عشان نقدر نأكد الطلب بسرعة.</p>
+        </div>
+        <div class="form-grid">
+          <label>الاسم بالكامل<input required name="name" placeholder="مثال: يوسف أحمد"></label>
+          <label>رقم الموبايل<input required name="phone" inputmode="tel" pattern="01[0-9]{9}" placeholder="01xxxxxxxxx"></label>
+          <label>رقم بديل اختياري<input name="altPhone" inputmode="tel" placeholder="لو متاح"></label>
+          <label>المحافظة<input required name="governorate" placeholder="مثال: الدقهلية"></label>
+          <label>المدينة / المنطقة<input required name="city" placeholder="مثال: المنصورة"></label>
+        </div>
+        <label>العنوان بالتفصيل<textarea required name="address" placeholder="الشارع، رقم البيت، الدور، علامة مميزة..."></textarea></label>
+        <label>ملاحظات اختيارية<textarea name="notes" placeholder="لون معين، وقت مناسب للتواصل، أي ملاحظة..."></textarea></label>
+        <div class="checkout-note">دفع عند الاستلام · تأكيد قبل الشحن · شحن حسب المحافظة</div>
+        <button class="btn primary full big-btn" type="submit">تأكيد الطلب الآن</button>
+        <p class="form-msg" id="formMsg"></p>
+      </form>
+
+      <aside class="checkout-card order-side premium-summary reveal">
+        <div class="side-head">
+          <h2>ملخص السلة</h2>
+          <a href="/">تعديل المنتجات</a>
+        </div>
+        <div id="checkoutItems" class="checkout-items"></div>
+        <div class="totals" id="checkoutTotals"></div>
+      </aside>
+    </section>
+  </main>
+
+  <footer><img src="/assets/logo.png" alt="Aerova"><p>Aerova Egypt — اختيارات عملية كل يوم</p></footer>
+  <script src="/checkout.js"></script>
+</body>
+</html>
