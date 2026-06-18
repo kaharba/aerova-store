@@ -6,7 +6,7 @@
     "price": 249,
     "oldPrice": 320,
     "stock": 40,
-    "image": "/assets/cable-organizer.png",
+    "image": "/cable-organizer.png",
     "badge": "الأكثر عملية",
     "description": "منظم صغير بيجمع الشواحن والسماعات والكابلات في مكان واحد بدل اللخبطة في الشنطة.",
     "features": [
@@ -23,7 +23,7 @@
     "price": 199,
     "oldPrice": 260,
     "stock": 35,
-    "image": "/assets/desk-stand.png",
+    "image": "/desk-stand.png",
     "badge": "مناسب للمكتب",
     "description": "حامل موبايل ثابت للاستخدام اليومي على المكتب أثناء الشغل، المذاكرة، أو مشاهدة الفيديوهات.",
     "features": [
@@ -40,7 +40,7 @@
     "price": 299,
     "oldPrice": 380,
     "stock": 28,
-    "image": "/assets/drawer-organizer.png",
+    "image": "/drawer-organizer.png",
     "badge": "للبيت",
     "description": "حل عملي لترتيب الأدراج والإكسسوارات والأدوات الصغيرة بشكل منظم وسهل الوصول.",
     "features": [
@@ -57,7 +57,7 @@
     "price": 349,
     "oldPrice": 450,
     "stock": 22,
-    "image": "/assets/tech-pouch.png",
+    "image": "/tech-pouch.png",
     "badge": "Premium",
     "description": "شنطة تنظيم أنيقة للشواحن، الباور بانك، الكابلات، والملحقات الصغيرة أثناء السفر أو الشغل.",
     "features": [
@@ -74,7 +74,7 @@
     "price": 269,
     "oldPrice": 340,
     "stock": 30,
-    "image": "/assets/car-holder.png",
+    "image": "/car-holder.png",
     "badge": "للتحرك",
     "description": "حامل موبايل يساعدك تستخدم الخرائط والمكالمات بشكل أسهل أثناء القيادة بدون لخبطة.",
     "features": [
@@ -91,7 +91,7 @@
     "price": 189,
     "oldPrice": 240,
     "stock": 45,
-    "image": "/assets/storage-box.png",
+    "image": "/storage-box.png",
     "badge": "تنظيم",
     "description": "علبة تخزين بسيطة للأدوات الصغيرة، الإكسسوارات، أو المستلزمات اليومية عشان كل حاجة تبقى واضحة ومترتبة.",
     "features": [

@@ -1,15 +1,17 @@
-# Aerova Egypt Store
+# Aerova Egypt Store - Flat Render Ready
 
-متجر Full Stack بسيط بواجهة متجر، صفحات منتجات مستقلة، سلة، Checkout، ولوحة تحكم مخفية على /admin.
+ارفع كل الملفات الموجودة داخل هذا الفولدر مباشرة في GitHub repo.
 
-## التشغيل
+Render settings:
+- Root Directory: leave empty
+- Build Command: npm install
+- Start Command: npm start
 
-```bash
-node server.js
-```
+Environment Variables:
+- ADMIN_PASSWORD: اكتب باسورد لوحة التحكم
 
-افتح: http://localhost:3000
-
-لوحة التحكم: http://localhost:3000/admin
-
-غير كلمة سر الأدمن من متغير البيئة ADMIN_PASSWORD قبل الرفع الحقيقي.
+URLs:
+- Home: /
+- Checkout: /checkout
+- Admin hidden page: /admin
+- Health check: /api/health

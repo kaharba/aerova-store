@@ -29,7 +29,7 @@ async function init(){
 
 function renderProduct(){
   document.title = `${product.name} | Aerova Egypt`;
-  $('#productImage').src = product.image || '/assets/logo.png';
+  $('#productImage').src = product.image || '/logo.png';
   $('#productImage').alt = product.name || 'Product image';
   $('#productCategory').textContent = product.category || 'AEROVA';
   $('#productName').textContent = product.name || '';

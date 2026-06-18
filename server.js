@@ -10,8 +10,8 @@ const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'change-this-password';
 const ADMIN_TOKEN = process.env.ADMIN_TOKEN || crypto.randomBytes(32).toString('hex');
 
 const ROOT = __dirname;
-const PUBLIC_DIR = path.join(ROOT, 'public');
-const DATA_DIR = path.join(ROOT, 'data');
+const PUBLIC_DIR = ROOT;
+const DATA_DIR = ROOT;
 const PRODUCTS_FILE = path.join(DATA_DIR, 'products.json');
 const ORDERS_FILE = path.join(DATA_DIR, 'orders.json');
 
@@ -24,8 +24,18 @@ const mime = {
   '.jpg': 'image/jpeg',
   '.jpeg': 'image/jpeg',
   '.webp': 'image/webp',
-  '.svg': 'image/svg+xml'
+  '.svg': 'image/svg+xml',
+  '.ico': 'image/x-icon'
 };
+
+const blockedStaticFiles = new Set([
+  'server.js',
+  'package.json',
+  'products.json',
+  'orders.json',
+  'README.md',
+  '.env'
+]);
 
 function send(res, status, data, type = 'application/json; charset=utf-8') {
   const headers = {
@@ -35,7 +45,7 @@ function send(res, status, data, type = 'application/json; charset=utf-8') {
     'Access-Control-Allow-Methods': 'GET,POST,PUT,PATCH,DELETE,OPTIONS'
   };
   res.writeHead(status, headers);
-  res.end(type.includes('json') ? JSON.stringify(data) : data);
+  res.end(type.includes('json') && typeof data !== 'string' ? JSON.stringify(data) : data);
 }
 function sendJson(res, status, data) { send(res, status, data); }
 function uid(prefix) { return `${prefix}-${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 7)}`; }
@@ -88,7 +98,14 @@ function serveStatic(req, res, pathname) {
     '/admin/': 'admin.html'
   };
   const requested = pathname.startsWith('/product/') ? 'product.html' : (routeMap[pathname] || decodeURIComponent(pathname.replace(/^\//, '')));
-  let filePath = path.join(PUBLIC_DIR, requested);
+  const cleanName = path.basename(requested);
+  if (blockedStaticFiles.has(cleanName) || requested.includes('..')) {
+    return send(res, 404, 'Not found', 'text/plain; charset=utf-8');
+  }
+  const ext = path.extname(cleanName).toLowerCase();
+  if (!mime[ext]) return send(res, 404, 'Not found', 'text/plain; charset=utf-8');
+
+  const filePath = path.join(PUBLIC_DIR, requested);
   if (!filePath.startsWith(PUBLIC_DIR)) return send(res, 403, 'Forbidden', 'text/plain; charset=utf-8');
 
   fs.stat(filePath, (err, stat) => {
@@ -99,7 +116,6 @@ function serveStatic(req, res, pathname) {
         send(res, 404, data, 'text/html; charset=utf-8');
       });
     }
-    const ext = path.extname(filePath);
     fs.readFile(filePath, (e, data) => {
       if (e) return send(res, 404, 'Not found', 'text/plain; charset=utf-8');
       send(res, 200, data, mime[ext] || 'application/octet-stream');
@@ -133,7 +149,7 @@ async function handleApi(req, res, pathname) {
         price: Number(body.price || 0),
         oldPrice: Number(body.oldPrice || 0),
         stock: Number(body.stock || 0),
-        image: body.image || '/assets/logo.png',
+        image: body.image || '/logo.png',
         badge: String(body.badge || '').trim(),
         description: String(body.description || '').trim(),
         features: Array.isArray(body.features) ? body.features : String(body.features || '').split('\n').filter(Boolean)
