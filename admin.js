@@ -1,19 +1,34 @@
-let pass = sessionStorage.getItem('aerova_admin_pass') || '';
-let products = [];
+let adminPass = sessionStorage.getItem('aerova_admin_pass') || '';
 const $ = s => document.querySelector(s);
-const api = (url, opt={}) => fetch(url,{...opt,headers:{'Content-Type':'application/json','x-admin-password':pass,...(opt.headers||{})}}).then(r=>r.json());
-function money(n){return `${Number(n||0).toLocaleString('ar-EG')} جنيه`}
-function showAdmin(){ $('#loginBox').hidden=true; $('#adminPanel').hidden=false; loadAll(); }
-function showLogin(){ $('#loginBox').hidden=false; $('#adminPanel').hidden=true; }
-$('#loginForm').addEventListener('submit',async e=>{e.preventDefault(); pass=$('#adminPassword').value; const res=await api('/api/admin/products'); if(Array.isArray(res)){sessionStorage.setItem('aerova_admin_pass',pass);showAdmin()} else alert('الباسورد غير صحيح أو غير متفعل في Render');});
-$('#logoutBtn').onclick=()=>{sessionStorage.removeItem('aerova_admin_pass'); pass=''; showLogin();}
-async function loadAll(){ products=await api('/api/admin/products'); renderProducts(); const orders=await api('/api/admin/orders'); renderOrders(Array.isArray(orders)?orders:[]); }
-function renderProducts(){ $('#productsList').innerHTML=products.map(p=>`<div class="admin-row"><h4>${p.name}</h4><p>${p.category} · ${money(p.price)} · مخزون ${p.stock||0}</p><div class="admin-actions"><button onclick="editProduct('${p.id}')">تعديل</button><button onclick="deleteProduct('${p.id}')">حذف</button><a class="view-btn" href="/product/${p.id}" target="_blank">عرض</a></div></div>`).join('') || '<p class="muted">لا توجد منتجات</p>'; }
-function renderOrders(orders){ $('#ordersList').innerHTML=orders.map(o=>`<div class="order-row"><b>${o.id}</b><p>${o.customer?.name||''} · ${o.customer?.phone||''}</p><p>${(o.items||[]).map(i=>`${i.name} × ${i.qty}`).join('، ')}</p><p><b>${money(o.total)}</b> · ${o.status}</p><select onchange="updateOrder('${o.id}',this.value)"><option>جديد</option><option>تم التأكيد</option><option>تم الشحن</option><option>ملغي</option></select></div>`).join('') || '<p class="muted">لا توجد طلبات</p>'; }
-window.editProduct = id => { const p=products.find(x=>x.id===id); if(!p) return; const f=$('#productForm'); Object.keys(p).forEach(k=>{ if(f.elements[k]) f.elements[k].value = Array.isArray(p[k]) ? p[k].join('\n') : p[k]; }); scrollTo({top:0,behavior:'smooth'}); };
-window.deleteProduct = async id => { if(!confirm('حذف المنتج؟')) return; await api('/api/admin/products/'+id,{method:'DELETE'}); loadAll(); };
-window.updateOrder = async (id,status) => { await api('/api/admin/orders/'+id,{method:'PATCH',body:JSON.stringify({status})}); loadAll(); };
-$('#clearForm').onclick=()=>$('#productForm').reset();
-$('#imageUpload').addEventListener('change', e=>{ const file=e.target.files[0]; if(!file) return; const reader=new FileReader(); reader.onload=async()=>{ const res=await api('/api/admin/upload',{method:'POST',body:JSON.stringify({image:reader.result})}); if(res.url){ $('#productForm').elements.image.value=res.url; alert('تم رفع الصورة'); } else alert(res.error||'فشل رفع الصورة'); }; reader.readAsDataURL(file); });
-$('#productForm').addEventListener('submit',async e=>{ e.preventDefault(); const data=Object.fromEntries(new FormData(e.target).entries()); data.features=(data.features||'').split('\n').filter(Boolean); const id=data.id; const method=id && products.some(p=>p.id===id)?'PUT':'POST'; const url=method==='PUT'?'/api/admin/products/'+id:'/api/admin/products'; await api(url,{method,body:JSON.stringify(data)}); e.target.reset(); loadAll(); });
-if(pass) showAdmin(); else showLogin();
+const money = n => `${Number(n||0).toLocaleString('ar-EG')} جنيه`;
+async function api(path, opt={}){
+  opt.headers = { 'Content-Type':'application/json', 'x-admin-password': adminPass, ...(opt.headers||{}) };
+  const r = await fetch(path,opt); const d = await r.json().catch(()=>({})); if(!r.ok) throw new Error(d.error||'Error'); return d;
+}
+function showAdmin(){ $('#login').classList.add('hide'); $('#admin').classList.remove('hide'); loadAdmin(); }
+async function login(){
+  adminPass = $('#pass').value;
+  try{ await fetch('/api/admin/login',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({password:adminPass})}).then(r=>{if(!r.ok)throw 0;return r.json()}); sessionStorage.setItem('aerova_admin_pass',adminPass); showAdmin(); }
+  catch{ $('#err').textContent='الباسورد غلط أو غير مضبوط في Render'; }
+}
+async function loadAdmin(){ await Promise.all([loadProducts(), loadOrders()]); }
+async function loadProducts(){
+  const products = await api('/api/admin/products');
+  $('#productsList').innerHTML = products.map(p=>`<div class="rowCard"><b>${p.name}</b><span class="small">${p.category} • ${money(p.price)} • مخزون ${p.stock}</span><div><button class="btn ghost" onclick='editProduct(${JSON.stringify(p).replaceAll("'","&apos;")})'>تعديل</button> <button class="btn danger" onclick="delProduct('${p.id}')">حذف</button></div></div>`).join('') || '<div class="empty">لا توجد منتجات</div>';
+}
+async function loadOrders(){
+  const orders = await api('/api/admin/orders');
+  $('#ordersList').innerHTML = orders.map(o=>`<div class="rowCard"><b>${o.id}</b><span>${o.customer.name} - ${o.customer.phone}</span><span class="small">${o.customer.city} • ${money(o.total)} • ${new Date(o.createdAt).toLocaleString('ar-EG')}</span><select onchange="updateOrder('${o.id}',this.value)"><option ${o.status==='new'?'selected':''} value="new">جديد</option><option ${o.status==='confirmed'?'selected':''} value="confirmed">تم التأكيد</option><option ${o.status==='shipped'?'selected':''} value="shipped">تم الشحن</option><option ${o.status==='cancelled'?'selected':''} value="cancelled">ملغي</option></select></div>`).join('') || '<div class="empty">لا توجد طلبات</div>';
+}
+function editProduct(p){
+  for(const k of ['id','name','category','price','oldPrice','stock','image','badge','rating','description']) if($(`[name=${k}]`)) $(`[name=${k}]`).value = p[k] ?? '';
+  $('[name=features]').value = (p.features||[]).join('\n');
+  scrollTo({top:0,behavior:'smooth'});
+}
+async function saveProduct(e){
+  e.preventDefault(); const fd = new FormData(e.target); const p = Object.fromEntries(fd.entries()); p.features = p.features.split('\n').filter(Boolean);
+  await api('/api/admin/products',{method:'POST',body:JSON.stringify(p)}); e.target.reset(); loadProducts();
+}
+async function delProduct(id){ if(confirm('تحذف المنتج؟')){ await api('/api/admin/products/'+id,{method:'DELETE'}); loadProducts(); } }
+async function updateOrder(id,status){ await api('/api/admin/orders/'+id,{method:'PATCH',body:JSON.stringify({status})}); }
+if(adminPass) showAdmin();

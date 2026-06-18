@@ -1,87 +1,114 @@
-let products = [];
-let state = { q: '', category: 'all', sort: 'popular' };
-const cartKey = 'aerova_cart_v2';
-const $ = (s) => document.querySelector(s);
-const money = (n) => `${Number(n || 0).toLocaleString('ar-EG')} جنيه`;
-const getCart = () => JSON.parse(localStorage.getItem(cartKey) || '[]');
-const saveCart = (cart) => { localStorage.setItem(cartKey, JSON.stringify(cart)); renderCart(); };
+const EGP = new Intl.NumberFormat('ar-EG');
+let PRODUCTS = [];
+let currentCategory = 'all';
+let searchTerm = '';
+let cart = JSON.parse(localStorage.getItem('aerova_cart') || '[]');
 
-function addToCart(id, qty = 1) {
-  const cart = getCart();
-  const item = cart.find(x => x.id === id);
-  if (item) item.qty += qty; else cart.push({ id, qty });
-  saveCart(cart);
-  openCart();
-}
-function setQty(id, qty) {
-  let cart = getCart();
-  if (qty <= 0) cart = cart.filter(x => x.id !== id); else cart = cart.map(x => x.id === id ? { ...x, qty } : x);
-  saveCart(cart);
-}
-function cartDetails() {
-  const cart = getCart();
-  return cart.map(i => ({ ...products.find(p => p.id === i.id), qty: i.qty })).filter(x => x.id);
-}
-function renderCart() {
-  const items = cartDetails();
-  const total = items.reduce((s, i) => s + i.price * i.qty, 0);
-  ['cartCount','mobileCartCount'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = items.reduce((s,i)=>s+i.qty,0); });
-  if ($('#cartTotal')) $('#cartTotal').textContent = money(total);
-  if (!$('#cartItems')) return;
-  $('#cartItems').innerHTML = items.length ? items.map(i => `
-    <div class="cart-item">
-      <img src="${i.image}" alt="${i.name}">
-      <div><h4>${i.name}</h4><div class="qty-row"><button onclick="setQty('${i.id}',${i.qty-1})">-</button><span>${i.qty}</span><button onclick="setQty('${i.id}',${i.qty+1})">+</button></div></div>
-      <div><b>${money(i.price*i.qty)}</b><button class="remove" onclick="setQty('${i.id}',0)">حذف</button></div>
-    </div>`).join('') : '<p class="muted">السلة فاضية.</p>';
-}
-function openCart(){ $('#cartDrawer')?.classList.add('show'); }
-function closeCart(){ $('#cartDrawer')?.classList.remove('show'); }
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const money = n => `${EGP.format(Number(n || 0))} جنيه`;
+const saveCart = () => { localStorage.setItem('aerova_cart', JSON.stringify(cart)); updateCart(); };
+const byId = id => PRODUCTS.find(p => p.id === id);
 
-function categories(){ return ['all', ...new Set(products.map(p => p.category).filter(Boolean))]; }
-function renderCategories(){
-  const chips = $('#categoryChips'); const filter = $('#categoryFilter');
-  const cats = categories();
-  chips.innerHTML = cats.map(c => `<button class="chip ${state.category===c?'active':''}" onclick="chooseCategory('${c}')">${c==='all'?'الكل':c}</button>`).join('');
-  filter.innerHTML = cats.map(c => `<option value="${c}" ${state.category===c?'selected':''}>${c==='all'?'كل الأقسام':c}</option>`).join('');
+async function loadProducts(){
+  const res = await fetch('/api/products');
+  PRODUCTS = await res.json();
+  updateCart();
+  if ($('#productsGrid')) renderHome();
+  if ($('#productPage')) renderProductPage();
+  if ($('#checkoutPage')) renderCheckout();
 }
-function chooseCategory(c){ state.category = c; renderAll(); }
-function filteredProducts(){
-  let list = products.filter(p => (state.category === 'all' || p.category === state.category) && (!state.q || (p.name + ' ' + p.category + ' ' + p.short).toLowerCase().includes(state.q.toLowerCase())));
-  if (state.sort === 'low') list.sort((a,b)=>a.price-b.price);
-  if (state.sort === 'high') list.sort((a,b)=>b.price-a.price);
-  if (state.sort === 'popular') list.sort((a,b)=>(b.reviews||0)-(a.reviews||0));
-  return list;
+
+function toast(msg){
+  let t = $('.toast'); if(!t){ t=document.createElement('div'); t.className='toast'; document.body.appendChild(t); }
+  t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1800);
 }
-function productCard(p){
-  return `<article class="product-card">
-    ${p.badge ? `<span class="badge">${p.badge}</span>` : ''}
-    <a class="product-img" href="/product/${p.id}"><img loading="lazy" src="${p.image}" alt="${p.name}"></a>
-    <div class="product-info">
-      <a class="product-title" href="/product/${p.id}">${p.name}</a>
-      <div class="rating">★ ${p.rating || 4.5} <span class="muted">(${p.reviews || 0})</span></div>
-      <p class="short">${p.short || ''}</p>
-      <div class="price"><b>${money(p.price)}</b>${p.oldPrice ? `<del>${money(p.oldPrice)}</del>` : ''}</div>
-      <div class="delivery">${p.delivery || 'توصيل سريع'}</div>
-      <div class="actions"><button class="add-btn" onclick="addToCart('${p.id}')">أضف للسلة</button><a class="view-btn" href="/product/${p.id}">عرض</a></div>
+
+function cartQty(){ return cart.reduce((s,i)=>s+i.qty,0); }
+function cartTotal(){ return cart.reduce((s,i)=>{ const p=byId(i.id); return s + (p ? p.price*i.qty : 0); },0); }
+function addToCart(id, qty=1){
+  const item = cart.find(i=>i.id===id);
+  if(item) item.qty += qty; else cart.push({id, qty});
+  saveCart(); toast('اتضاف للسلة');
+}
+function setQty(id, qty){
+  if(qty<=0) cart = cart.filter(i=>i.id!==id); else { const item=cart.find(i=>i.id===id); if(item) item.qty=qty; }
+  saveCart();
+}
+function updateCart(){
+  $$('.cartCount').forEach(el=>el.textContent=cartQty());
+  const box = $('#cartItems'); if(!box) return;
+  if(!cart.length){ box.innerHTML = `<div class="empty">السلة فاضية</div>`; }
+  else box.innerHTML = cart.map(i=>{
+    const p=byId(i.id); if(!p) return '';
+    return `<div class="cartItem">
+      <img src="${p.image}" alt="${p.name}">
+      <div><b>${p.name}</b><div class="small">${money(p.price)}</div><div class="qty"><button onclick="setQty('${i.id}',${i.qty-1})">−</button><span>${i.qty}</span><button onclick="setQty('${i.id}',${i.qty+1})">+</button></div></div>
+      <b>${money(p.price*i.qty)}</b>
+    </div>`;
+  }).join('');
+  const total = $('#cartTotal'); if(total) total.textContent = money(cartTotal());
+}
+function openCart(){ $('#drawer')?.classList.add('open'); }
+function closeCart(){ $('#drawer')?.classList.remove('open'); }
+
+function card(p){
+  return `<article class="card">
+    <a class="pic" href="/product/${p.id}"><img src="${p.image}" alt="${p.name}"><span class="badge">${p.badge || 'جديد'}</span></a>
+    <div class="body">
+      <div class="cat">${p.category}</div>
+      <a href="/product/${p.id}" class="title">${p.name}</a>
+      <div class="rating">★ ${p.rating || 4.5} <span class="muted">| متاح</span></div>
+      <div class="priceRow"><span class="price">${money(p.price)}</span>${p.oldPrice ? `<span class="old">${money(p.oldPrice)}</span>`:''}</div>
+      <div class="cardBtns"><button class="btn" onclick="addToCart('${p.id}')">أضف للسلة</button><a class="btn ghost" href="/product/${p.id}">عرض</a></div>
     </div>
   </article>`;
 }
-function renderDeals(){
-  const top = [...products].sort((a,b)=>(b.reviews||0)-(a.reviews||0)).slice(0,6);
-  $('#dealStrip').innerHTML = top.map(p => `<a class="deal-card" href="/product/${p.id}"><img src="${p.image}" alt="${p.name}"><div><h3>${p.name}</h3><div class="price"><b>${money(p.price)}</b>${p.oldPrice ? `<del>${money(p.oldPrice)}</del>`:''}</div></div></a>`).join('');
+function renderHome(){
+  const cats = ['all', ...new Set(PRODUCTS.map(p=>p.category))];
+  $('#cats').innerHTML = cats.map(c=>`<button class="pill ${currentCategory===c?'active':''}" onclick="setCat('${c}')">${c==='all'?'الكل':c}</button>`).join('');
+  let arr = PRODUCTS.filter(p => (currentCategory==='all' || p.category===currentCategory) && (p.name + p.category).toLowerCase().includes(searchTerm.toLowerCase()));
+  const sort = $('#sort')?.value || 'default';
+  if(sort==='low') arr.sort((a,b)=>a.price-b.price); if(sort==='high') arr.sort((a,b)=>b.price-a.price);
+  $('#productsGrid').innerHTML = arr.length ? arr.map(card).join('') : `<div class="empty">مفيش منتجات مطابقة</div>`;
 }
-function renderProducts(){
-  const list = filteredProducts();
-  $('#resultCount').textContent = `${list.length} منتج`;
-  $('#productGrid').innerHTML = list.length ? list.map(productCard).join('') : '<p class="muted">مفيش منتجات مطابقة.</p>';
-}
-function renderAll(){ renderCategories(); renderDeals(); renderProducts(); renderCart(); }
+function setCat(c){ currentCategory = c; renderHome(); }
+function searchNow(v){ searchTerm = v; renderHome(); }
 
-window.addToCart = addToCart; window.setQty = setQty; window.chooseCategory = chooseCategory;
-$('#openCart')?.addEventListener('click', openCart); $('#mobileCart')?.addEventListener('click', openCart); $('#closeCart')?.addEventListener('click', closeCart);
-$('#cartDrawer')?.addEventListener('click', e => { if (e.target.id === 'cartDrawer') closeCart(); });
-$('#categoryFilter')?.addEventListener('change', e => { state.category = e.target.value; renderAll(); });
-$('#sortSelect')?.addEventListener('change', e => { state.sort = e.target.value; renderProducts(); });
-$('#searchForm')?.addEventListener('submit', e => { e.preventDefault(); state.q = $('#searchInput').value.trim(); renderProducts(); document.getElementById('products').scrollIntoView({behavior:'smooth'}); });
-fetch('/api/products').then(r => r.json()).then(data => { products = data; renderAll(); }).catch(() => { $('#productGrid').innerHTML = '<p>حصل خطأ في تحميل المنتجات.</p>'; });
+function renderProductPage(){
+  const id = location.pathname.split('/').pop();
+  const p = byId(id) || PRODUCTS[0];
+  if(!p) return;
+  document.title = `${p.name} | Aerova`;
+  $('#productPage').innerHTML = `<div class="prodImage box"><img src="${p.image}" alt="${p.name}"></div>
+  <div class="box"><div class="cat">${p.category}</div><h1 class="prodTitle">${p.name}</h1><div class="rating">★ ${p.rating || 4.5} تقييم ممتاز</div><p>${p.description || ''}</p><ul class="features">${(p.features||[]).map(f=>`<li>${f}</li>`).join('')}</ul></div>
+  <aside class="box buyBox"><div class="priceRow"><span class="price">${money(p.price)}</span>${p.oldPrice?`<span class="old">${money(p.oldPrice)}</span>`:''}</div><div class="notice">الدفع عند الاستلام • تأكيد الطلب قبل الشحن</div><div class="stepper"><button id="minus">−</button><b id="q">1</b><button id="plus">+</button></div><button class="btn dark" id="add">أضف للسلة</button><button class="btn gold" id="buy" style="width:100%;margin-top:8px">اشتري الآن</button></aside>`;
+  let q=1; const set=()=>$('#q').textContent=q;
+  $('#minus').onclick=()=>{q=Math.max(1,q-1);set()}; $('#plus').onclick=()=>{q++;set()};
+  $('#add').onclick=()=>addToCart(p.id,q);
+  $('#buy').onclick=()=>{addToCart(p.id,q);location.href='/checkout'};
+}
+
+function renderCheckout(){
+  if(!cart.length){ $('#orderSummary').innerHTML = `<div class="empty">السلة فاضية</div>`; $('#submitOrder').disabled = true; return; }
+  $('#orderSummary').innerHTML = cart.map(i=>{ const p=byId(i.id); return p?`<div class="summaryItem"><span>${p.name} × ${i.qty}</span><b>${money(p.price*i.qty)}</b></div>`:''; }).join('') + `<div class="summaryItem"><b>الإجمالي</b><b>${money(cartTotal())}</b></div>`;
+  $('#orderForm').onsubmit = async e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    const body = Object.fromEntries(fd.entries());
+    body.items = cart.map(i=>({ id:i.id, qty:i.qty, name:byId(i.id)?.name, price:byId(i.id)?.price }));
+    body.total = cartTotal();
+    $('#submitOrder').textContent='جارٍ إرسال الطلب...';
+    const res = await fetch('/api/orders',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(body)});
+    const data = await res.json();
+    if(res.ok){ localStorage.removeItem('aerova_cart'); location.href = `/success?order=${encodeURIComponent(data.orderId)}`; }
+    else { toast(data.error || 'حصل خطأ'); $('#submitOrder').textContent='تأكيد الطلب'; }
+  };
+}
+
+document.addEventListener('click', e => {
+  if(e.target.matches('[data-cart]')) openCart();
+  if(e.target.matches('[data-close-cart], .shade')) closeCart();
+});
+
+loadProducts();

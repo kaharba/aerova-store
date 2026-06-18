@@ -1,39 +1,5 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>إتمام الطلب | Aerova</title>
-  <link rel="icon" href="/logo.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="/styles.css">
-</head>
-<body>
-  <header class="topbar simple">
-    <a class="brand" href="/"><img src="/logo.svg" alt="Aerova"></a>
-    <a class="back-link" href="/">رجوع للتسوق</a>
-  </header>
-
-  <main class="checkout-page">
-    <section class="checkout-form-card">
-      <h1>إتمام الطلب</h1>
-      <p class="muted">ادفع عند الاستلام. هنأكد الطلب معاك قبل الشحن.</p>
-      <form id="checkoutForm" class="form-grid">
-        <label>الاسم<input name="name" required placeholder="اسمك بالكامل"></label>
-        <label>رقم الموبايل<input name="phone" required inputmode="tel" placeholder="01xxxxxxxxx"></label>
-        <label>المحافظة<input name="city" required placeholder="مثال: الدقهلية"></label>
-        <label class="full">العنوان بالتفصيل<textarea name="address" required placeholder="الشارع، المنطقة، علامة مميزة"></textarea></label>
-        <label class="full">ملاحظة اختيارية<textarea name="note" placeholder="أي ملاحظة للتوصيل"></textarea></label>
-        <button class="place-order" type="submit">تأكيد الطلب</button>
-      </form>
-    </section>
-    <aside class="order-summary">
-      <h2>ملخص الطلب</h2>
-      <div id="checkoutItems"></div>
-      <div class="cart-total"><span>الإجمالي</span><b id="checkoutTotal">0 جنيه</b></div>
-      <div class="trust-row"><span>دفع عند الاستلام</span><span>توصيل سريع</span></div>
-    </aside>
-  </main>
-
-  <script src="/checkout.js" defer></script>
-</body>
-</html>
+<!doctype html><html lang="ar" dir="rtl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>إتمام الطلب | Aerova</title><link rel="stylesheet" href="/styles.css"></head><body>
+<header class="header"><div class="wrap head"><a class="logo" href="/"><img src="/logo.svg" alt="Aerova"></a><div></div><div class="actions"><button class="iconBtn" data-cart>السلة <span class="cartCount">0</span></button></div></div></header>
+<main class="wrap checkout" id="checkoutPage"><section class="box"><h2>بيانات التوصيل</h2><form class="form" id="orderForm"><div class="field"><label>الاسم</label><input name="name" required></div><div class="field"><label>رقم الموبايل</label><input name="phone" required inputmode="tel"></div><div class="field"><label>المحافظة / المدينة</label><input name="city" required></div><div class="field"><label>العنوان بالتفصيل</label><textarea name="address" required></textarea></div><div class="field"><label>ملاحظات</label><textarea name="notes"></textarea></div><div class="notice">الدفع عند الاستلام، وهنأكد الطلب معاك قبل الشحن.</div><button class="btn dark" id="submitOrder">تأكيد الطلب</button></form></section><aside class="box"><h2>ملخص الطلب</h2><div id="orderSummary"></div></aside></main>
+<div class="drawer" id="drawer"><div class="shade" data-close-cart></div><aside class="cartPanel"><div class="cartHead"><b>سلة المشتريات</b><button class="iconBtn" data-close-cart>×</button></div><div class="cartItems" id="cartItems"></div><div class="cartFoot"><div class="total"><span>الإجمالي</span><span id="cartTotal">0 جنيه</span></div></div></aside></div>
+<script src="/app.js"></script></body></html>

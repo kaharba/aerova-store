@@ -1,12 +1,13 @@
 {
-  "name": "aerova-market-winner",
+  "name": "aerova-clean-market",
   "version": "2.0.0",
-  "description": "Fast mobile-first Aerova Egypt marketplace",
+  "description": "Aerova marketplace storefront with hidden admin, cart, checkout, and JSON storage",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js"
+    "start": "node server.js",
+    "dev": "node server.js"
   },
   "engines": {
-    "node": ">=18 <27"
+    "node": ">=18"
   }
 }
