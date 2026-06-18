@@ -1,52 +1,30 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>تفاصيل المنتج | Aerova Egypt</title>
-  <link rel="icon" href="/logo.png" />
-  <link rel="stylesheet" href="/styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>تفاصيل المنتج | Aerova</title>
+  <link rel="icon" href="/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <header class="site-header compact">
-    <div class="header-main">
-      <a class="brand" href="/"><img src="/logo.png" alt="Aerova"><span>AEROVA</span></a>
-      <button class="cart-pill" id="openCart" type="button">السلة <b id="cartCount">0</b></button>
-    </div>
+  <header class="topbar simple">
+    <a class="brand" href="/"><img src="/logo.svg" alt="Aerova"></a>
+    <a class="back-link" href="/">كل المنتجات</a>
+    <button class="cart-btn" id="openCart">السلة <b id="cartCount">0</b></button>
   </header>
 
-  <main id="productPage" class="product-page">
-    <a class="back-link" href="/">← رجوع للمتجر</a>
-    <section class="pdp-card">
-      <div class="pdp-image-wrap"><img id="productImage" src="/logo.png" alt=""></div>
-      <div class="pdp-info">
-        <span id="productCategory" class="category-tag"></span>
-        <h1 id="productName"></h1>
-        <div class="rating big">★★★★★ <span id="productRating"></span></div>
-        <p id="productDescription" class="short-desc"></p>
-        <div class="pdp-price"><strong id="productPrice"></strong><del id="productOldPrice"></del></div>
-        <div id="productFeatures" class="feature-list"></div>
-      </div>
-      <aside class="buy-box">
-        <b>الدفع عند الاستلام</b>
-        <span>تأكيد هاتفي قبل الشحن</span>
-        <div class="qty-picker"><button id="minusQty">-</button><input id="productQty" value="1" inputmode="numeric"><button id="plusQty">+</button></div>
-        <button class="main-btn" id="detailAdd">أضف للسلة</button>
-        <button class="dark-btn" id="detailBuy">اشتري الآن</button>
-      </aside>
-    </section>
+  <main class="product-main" id="productRoot"></main>
 
-    <section class="section-title"><h2>منتجات مشابهة</h2></section>
-    <section class="products-grid" id="relatedProducts"></section>
-  </main>
-
-  <aside class="cart-drawer" id="cartDrawer">
-    <div class="cart-head"><h3>السلة</h3><button id="closeCart">×</button></div>
-    <div id="cartItems" class="cart-items"></div>
-    <div class="cart-total"><span>الإجمالي</span><b id="cartTotal">0 جنيه</b></div>
-    <a class="main-btn full" href="/checkout">إتمام الطلب</a>
+  <aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
+    <div class="cart-panel">
+      <div class="cart-head"><h2>السلة</h2><button id="closeCart" type="button">×</button></div>
+      <div id="cartItems" class="cart-items"></div>
+      <div class="cart-total"><span>الإجمالي</span><b id="cartTotal">0 جنيه</b></div>
+      <a class="checkout-btn" href="/checkout">إتمام الطلب</a>
+    </div>
   </aside>
-  <div class="overlay" id="overlay"></div>
-  <script src="/product.js"></script>
+
+  <script src="/product.js" defer></script>
 </body>
 </html>

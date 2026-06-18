@@ -1,62 +1,22 @@
-let products = [];
-let product = null;
-let cart = JSON.parse(localStorage.getItem('aerova_cart') || '[]');
+let products = [], product = null;
+const cartKey = 'aerova_cart_v2';
 const $ = s => document.querySelector(s);
 const money = n => `${Number(n || 0).toLocaleString('ar-EG')} جنيه`;
-const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-
-function getProductId(){ return decodeURIComponent(location.pathname.split('/').filter(Boolean)[1] || ''); }
-async function init(){
-  products = await fetch('/api/products').then(r=>r.json());
-  product = products.find(p => p.id === getProductId()) || products[0];
-  if(!product){ $('#productPage').innerHTML = '<div class="empty-state">المنتج غير موجود</div>'; return; }
-  renderProduct(); renderRelated(); updateCart();
-}
+const getCart = () => JSON.parse(localStorage.getItem(cartKey) || '[]');
+const saveCart = c => { localStorage.setItem(cartKey, JSON.stringify(c)); renderCart(); };
+function addToCart(id, qty=1){ const c=getCart(); const i=c.find(x=>x.id===id); if(i)i.qty+=qty; else c.push({id,qty}); saveCart(c); openCart(); }
+function setQty(id, qty){ let c=getCart(); c=qty<=0?c.filter(x=>x.id!==id):c.map(x=>x.id===id?{...x,qty}:x); saveCart(c); }
+function cartDetails(){return getCart().map(i=>({...products.find(p=>p.id===i.id),qty:i.qty})).filter(x=>x.id)}
+function renderCart(){ const items=cartDetails(); const total=items.reduce((s,i)=>s+i.price*i.qty,0); if($('#cartCount')) $('#cartCount').textContent=items.reduce((s,i)=>s+i.qty,0); if($('#cartTotal')) $('#cartTotal').textContent=money(total); if($('#cartItems')) $('#cartItems').innerHTML=items.length?items.map(i=>`<div class="cart-item"><img src="${i.image}" alt="${i.name}"><div><h4>${i.name}</h4><div class="qty-row"><button onclick="setQty('${i.id}',${i.qty-1})">-</button><span>${i.qty}</span><button onclick="setQty('${i.id}',${i.qty+1})">+</button></div></div><div><b>${money(i.price*i.qty)}</b><button class="remove" onclick="setQty('${i.id}',0)">حذف</button></div></div>`).join(''):'<p class="muted">السلة فاضية.</p>'; }
+function openCart(){ $('#cartDrawer')?.classList.add('show'); } function closeCart(){ $('#cartDrawer')?.classList.remove('show'); }
 function renderProduct(){
-  document.title = `${product.name} | Aerova Egypt`;
-  $('#productImage').src = product.image || '/logo.png';
-  $('#productImage').alt = product.name || '';
-  $('#productCategory').textContent = product.category || 'منتجات';
-  $('#productName').textContent = product.name || '';
-  $('#productDescription').textContent = product.description || '';
-  $('#productRating').textContent = `(${Number(product.rating || 24)})`;
-  $('#productPrice').textContent = money(product.price);
-  $('#productOldPrice').textContent = product.oldPrice ? money(product.oldPrice) : '';
-  $('#productOldPrice').style.display = product.oldPrice ? 'inline' : 'none';
-  $('#productFeatures').innerHTML = (product.features || []).slice(0,5).map(f => `<span>✓ ${esc(f)}</span>`).join('');
+  if(!product){ $('#productRoot').innerHTML='<div class="status-card"><h1>المنتج غير موجود</h1><a href="/">رجوع للمتجر</a></div>'; return; }
+  $('#productRoot').innerHTML=`
+    <section class="pd-image"><img src="${product.image}" alt="${product.name}"></section>
+    <section class="pd-info"><span class="chip active">${product.category}</span><h1>${product.name}</h1><div class="rating">★ ${product.rating||4.5} <span class="muted">(${product.reviews||0} تقييم)</span></div><p class="desc">${product.description||product.short||''}</p><ul class="feature-list">${(product.features||[]).map(f=>`<li>${f}</li>`).join('')}</ul></section>
+    <aside class="buy-box"><div class="big-price">${money(product.price)}</div>${product.oldPrice?`<div class="old">${money(product.oldPrice)}</div>`:''}<p class="delivery">${product.delivery||'توصيل سريع'}</p><button class="buy-now" onclick="addToCart('${product.id}'); location.href='/checkout'">اشتر الآن</button><button class="add-full" onclick="addToCart('${product.id}')">أضف للسلة</button></aside>`;
 }
-function renderRelated(){
-  $('#relatedProducts').innerHTML = products.filter(p=>p.id!==product.id).slice(0,4).map(p => `
-    <article class="product-card">
-      <a class="product-img" href="/product/${encodeURIComponent(p.id)}"><img src="${esc(p.image)}" alt="${esc(p.name)}"></a>
-      <div class="product-body">
-        <a class="product-name" href="/product/${encodeURIComponent(p.id)}">${esc(p.name)}</a>
-        <div class="rating">★★★★★</div>
-        <div class="price-line"><strong>${money(p.price)}</strong></div>
-        <button class="add-btn" onclick="addProductToCart('${esc(p.id)}',1)">أضف للسلة</button>
-      </div>
-    </article>`).join('');
-}
-function saveCart(){ localStorage.setItem('aerova_cart', JSON.stringify(cart)); }
-function addProductToCart(id, qty){
-  const p = products.find(x=>x.id===id); if(!p) return;
-  const found = cart.find(x=>x.id===id);
-  if(found) found.qty += qty; else cart.push({id:p.id,name:p.name,price:Number(p.price||0),image:p.image,qty});
-  saveCart(); updateCart(); openCart();
-}
-function addCurrent(){ addProductToCart(product.id, Math.max(1, Number($('#productQty').value || 1))); }
-function changeQty(id,d){ const i=cart.find(x=>x.id===id); if(!i)return; i.qty=Math.max(1,i.qty+d); saveCart(); updateCart(); }
-function removeFromCart(id){ cart=cart.filter(i=>i.id!==id); saveCart(); updateCart(); }
-function updateCart(){
-  const count = cart.reduce((s,i)=>s+i.qty,0), total = cart.reduce((s,i)=>s+i.price*i.qty,0);
-  $('#cartCount').textContent=count; $('#cartTotal').textContent=money(total);
-  $('#cartItems').innerHTML = cart.map(i=>`<div class="cart-item"><img src="${esc(i.image)}"><div class="cart-info"><b>${esc(i.name)}</b><span>${money(i.price)} × ${i.qty}</span><div class="qty-row"><button onclick="changeQty('${esc(i.id)}',1)">+</button><button onclick="changeQty('${esc(i.id)}',-1)">-</button><button class="link-danger" onclick="removeFromCart('${esc(i.id)}')">حذف</button></div></div></div>`).join('') || '<div class="empty-state">السلة فاضية.</div>';
-}
-function openCart(){ $('#cartDrawer').classList.add('open'); $('#overlay').classList.add('open'); }
-function closeCart(){ $('#cartDrawer').classList.remove('open'); $('#overlay').classList.remove('open'); }
-$('#openCart').addEventListener('click',openCart); $('#closeCart').addEventListener('click',closeCart); $('#overlay').addEventListener('click',closeCart);
-$('#plusQty').addEventListener('click',()=>$('#productQty').value = Number($('#productQty').value||1)+1);
-$('#minusQty').addEventListener('click',()=>$('#productQty').value = Math.max(1,Number($('#productQty').value||1)-1));
-$('#detailAdd').addEventListener('click', addCurrent);
-$('#detailBuy').addEventListener('click',()=>{ addCurrent(); location.href='/checkout'; });
-init().catch(()=>$('#productPage').innerHTML='<div class="empty-state">حصل خطأ في تحميل المنتج.</div>');
+window.addToCart=addToCart; window.setQty=setQty;
+$('#openCart')?.addEventListener('click',openCart); $('#closeCart')?.addEventListener('click',closeCart); $('#cartDrawer')?.addEventListener('click',e=>{if(e.target.id==='cartDrawer') closeCart()});
+const id = location.pathname.split('/').filter(Boolean).pop();
+fetch('/api/products').then(r=>r.json()).then(data=>{ products=data; product=products.find(p=>p.id===id); renderProduct(); renderCart(); });

@@ -1,10 +1,17 @@
-Aerova Egypt Store
+# Aerova Egypt Store
 
-Run:
-npm start
+نسخة Render جاهزة: ملفات Flat بدون public/data.
 
-Render:
-Build Command: npm install
-Start Command: npm start
-Root Directory: empty
-Environment Variable: ADMIN_PASSWORD
+Render settings:
+- Build Command: npm install
+- Start Command: npm start
+- Root Directory: empty
+
+Environment Variable:
+- ADMIN_PASSWORD = your private password
+
+Routes:
+- `/` store
+- `/product/p-101` product page
+- `/checkout` checkout
+- `/admin` hidden admin panel

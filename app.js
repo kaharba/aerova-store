@@ -1,117 +1,87 @@
 let products = [];
-let cart = JSON.parse(localStorage.getItem('aerova_cart') || '[]');
-let currentCat = 'الكل';
-let searchQuery = '';
-let sortMode = 'default';
+let state = { q: '', category: 'all', sort: 'popular' };
+const cartKey = 'aerova_cart_v2';
+const $ = (s) => document.querySelector(s);
+const money = (n) => `${Number(n || 0).toLocaleString('ar-EG')} جنيه`;
+const getCart = () => JSON.parse(localStorage.getItem(cartKey) || '[]');
+const saveCart = (cart) => { localStorage.setItem(cartKey, JSON.stringify(cart)); renderCart(); };
 
-const $ = s => document.querySelector(s);
-const money = n => `${Number(n || 0).toLocaleString('ar-EG')} جنيه`;
-const escapeHtml = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-
-const grid = $('#productsGrid');
-const cartDrawer = $('#cartDrawer');
-const overlay = $('#overlay');
-
-async function loadProducts(){
-  try{
-    products = await fetch('/api/products').then(r => r.json());
-    renderCategories();
-    renderProducts();
-    updateCart();
-  } catch(e){
-    grid.innerHTML = '<div class="empty-state">حصل خطأ في تحميل المنتجات.</div>';
-  }
-}
-
-function renderCategories(){
-  const row = $('#categoryRow');
-  const cats = ['الكل', ...new Set(products.map(p => p.category || 'منتجات').filter(Boolean))];
-  row.innerHTML = cats.map(cat => `<button class="cat-btn ${cat===currentCat?'active':''}" data-cat="${escapeHtml(cat)}">${escapeHtml(cat)}</button>`).join('');
-  row.querySelectorAll('button').forEach(btn => btn.addEventListener('click', () => {
-    currentCat = btn.dataset.cat;
-    renderCategories();
-    renderProducts();
-  }));
-}
-
-function productMatches(p){
-  const catOk = currentCat === 'الكل' || p.category === currentCat;
-  const q = searchQuery.trim().toLowerCase();
-  const text = [p.name, p.category, p.description, ...(p.features || [])].join(' ').toLowerCase();
-  return catOk && (!q || text.includes(q));
-}
-
-function renderProducts(){
-  let list = products.filter(productMatches);
-  if(sortMode === 'low') list.sort((a,b)=>Number(a.price||0)-Number(b.price||0));
-  if(sortMode === 'high') list.sort((a,b)=>Number(b.price||0)-Number(a.price||0));
-  $('#resultCount').textContent = `${list.length} منتج`;
-
-  grid.innerHTML = list.map(p => {
-    const id = encodeURIComponent(p.id);
-    const discount = p.oldPrice && p.oldPrice > p.price ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
-    return `
-      <article class="product-card">
-        <a class="product-img" href="/product/${id}">
-          ${p.badge ? `<span class="badge">${escapeHtml(p.badge)}</span>` : ''}
-          <img src="${escapeHtml(p.image || '/logo.png')}" alt="${escapeHtml(p.name)}" loading="lazy">
-        </a>
-        <div class="product-body">
-          <a class="product-name" href="/product/${id}">${escapeHtml(p.name)}</a>
-          <div class="rating">★★★★★ <span>(${Number(p.rating || 24)})</span></div>
-          <div class="price-line"><strong>${money(p.price)}</strong>${p.oldPrice ? `<del>${money(p.oldPrice)}</del>` : ''}</div>
-          ${discount ? `<small class="discount">وفر ${discount}%</small>` : '<small class="delivery">دفع عند الاستلام</small>'}
-          <button class="add-btn" onclick="addToCart('${escapeHtml(p.id)}')">أضف للسلة</button>
-        </div>
-      </article>`;
-  }).join('') || '<div class="empty-state">مفيش منتجات مطابقة.</div>';
-}
-
-function saveCart(){ localStorage.setItem('aerova_cart', JSON.stringify(cart)); }
-function addToCart(id){
-  const product = products.find(p => p.id === id);
-  if(!product) return;
-  const found = cart.find(i => i.id === id);
-  if(found) found.qty += 1;
-  else cart.push({ id: product.id, name: product.name, price: Number(product.price || 0), image: product.image, qty: 1 });
-  saveCart();
-  updateCart();
+function addToCart(id, qty = 1) {
+  const cart = getCart();
+  const item = cart.find(x => x.id === id);
+  if (item) item.qty += qty; else cart.push({ id, qty });
+  saveCart(cart);
   openCart();
 }
-function removeFromCart(id){ cart = cart.filter(i => i.id !== id); saveCart(); updateCart(); }
-function changeQty(id, delta){
-  const item = cart.find(i => i.id === id);
-  if(!item) return;
-  item.qty = Math.max(1, item.qty + delta);
-  saveCart();
-  updateCart();
+function setQty(id, qty) {
+  let cart = getCart();
+  if (qty <= 0) cart = cart.filter(x => x.id !== id); else cart = cart.map(x => x.id === id ? { ...x, qty } : x);
+  saveCart(cart);
 }
-function updateCart(){
-  const count = cart.reduce((s,i)=>s+i.qty,0);
-  const total = cart.reduce((s,i)=>s+i.price*i.qty,0);
-  $('#cartCount').textContent = count;
-  $('#cartTotal').textContent = money(total);
-  $('#cartItems').innerHTML = cart.map(item => `
+function cartDetails() {
+  const cart = getCart();
+  return cart.map(i => ({ ...products.find(p => p.id === i.id), qty: i.qty })).filter(x => x.id);
+}
+function renderCart() {
+  const items = cartDetails();
+  const total = items.reduce((s, i) => s + i.price * i.qty, 0);
+  ['cartCount','mobileCartCount'].forEach(id => { const el = document.getElementById(id); if (el) el.textContent = items.reduce((s,i)=>s+i.qty,0); });
+  if ($('#cartTotal')) $('#cartTotal').textContent = money(total);
+  if (!$('#cartItems')) return;
+  $('#cartItems').innerHTML = items.length ? items.map(i => `
     <div class="cart-item">
-      <img src="${escapeHtml(item.image)}" alt="">
-      <div class="cart-info">
-        <b>${escapeHtml(item.name)}</b>
-        <span>${money(item.price)} × ${item.qty}</span>
-        <div class="qty-row">
-          <button onclick="changeQty('${escapeHtml(item.id)}',1)">+</button>
-          <button onclick="changeQty('${escapeHtml(item.id)}',-1)">-</button>
-          <button class="link-danger" onclick="removeFromCart('${escapeHtml(item.id)}')">حذف</button>
-        </div>
-      </div>
-    </div>`).join('') || '<div class="empty-state">السلة فاضية.</div>';
+      <img src="${i.image}" alt="${i.name}">
+      <div><h4>${i.name}</h4><div class="qty-row"><button onclick="setQty('${i.id}',${i.qty-1})">-</button><span>${i.qty}</span><button onclick="setQty('${i.id}',${i.qty+1})">+</button></div></div>
+      <div><b>${money(i.price*i.qty)}</b><button class="remove" onclick="setQty('${i.id}',0)">حذف</button></div>
+    </div>`).join('') : '<p class="muted">السلة فاضية.</p>';
 }
-function openCart(){ cartDrawer.classList.add('open'); overlay.classList.add('open'); }
-function closeCart(){ cartDrawer.classList.remove('open'); overlay.classList.remove('open'); }
+function openCart(){ $('#cartDrawer')?.classList.add('show'); }
+function closeCart(){ $('#cartDrawer')?.classList.remove('show'); }
 
-$('#openCart').addEventListener('click', openCart);
-$('#closeCart').addEventListener('click', closeCart);
-overlay.addEventListener('click', closeCart);
-$('#productSearch').addEventListener('input', e => { searchQuery = e.target.value; renderProducts(); });
-$('#sortProducts').addEventListener('change', e => { sortMode = e.target.value; renderProducts(); });
+function categories(){ return ['all', ...new Set(products.map(p => p.category).filter(Boolean))]; }
+function renderCategories(){
+  const chips = $('#categoryChips'); const filter = $('#categoryFilter');
+  const cats = categories();
+  chips.innerHTML = cats.map(c => `<button class="chip ${state.category===c?'active':''}" onclick="chooseCategory('${c}')">${c==='all'?'الكل':c}</button>`).join('');
+  filter.innerHTML = cats.map(c => `<option value="${c}" ${state.category===c?'selected':''}>${c==='all'?'كل الأقسام':c}</option>`).join('');
+}
+function chooseCategory(c){ state.category = c; renderAll(); }
+function filteredProducts(){
+  let list = products.filter(p => (state.category === 'all' || p.category === state.category) && (!state.q || (p.name + ' ' + p.category + ' ' + p.short).toLowerCase().includes(state.q.toLowerCase())));
+  if (state.sort === 'low') list.sort((a,b)=>a.price-b.price);
+  if (state.sort === 'high') list.sort((a,b)=>b.price-a.price);
+  if (state.sort === 'popular') list.sort((a,b)=>(b.reviews||0)-(a.reviews||0));
+  return list;
+}
+function productCard(p){
+  return `<article class="product-card">
+    ${p.badge ? `<span class="badge">${p.badge}</span>` : ''}
+    <a class="product-img" href="/product/${p.id}"><img loading="lazy" src="${p.image}" alt="${p.name}"></a>
+    <div class="product-info">
+      <a class="product-title" href="/product/${p.id}">${p.name}</a>
+      <div class="rating">★ ${p.rating || 4.5} <span class="muted">(${p.reviews || 0})</span></div>
+      <p class="short">${p.short || ''}</p>
+      <div class="price"><b>${money(p.price)}</b>${p.oldPrice ? `<del>${money(p.oldPrice)}</del>` : ''}</div>
+      <div class="delivery">${p.delivery || 'توصيل سريع'}</div>
+      <div class="actions"><button class="add-btn" onclick="addToCart('${p.id}')">أضف للسلة</button><a class="view-btn" href="/product/${p.id}">عرض</a></div>
+    </div>
+  </article>`;
+}
+function renderDeals(){
+  const top = [...products].sort((a,b)=>(b.reviews||0)-(a.reviews||0)).slice(0,6);
+  $('#dealStrip').innerHTML = top.map(p => `<a class="deal-card" href="/product/${p.id}"><img src="${p.image}" alt="${p.name}"><div><h3>${p.name}</h3><div class="price"><b>${money(p.price)}</b>${p.oldPrice ? `<del>${money(p.oldPrice)}</del>`:''}</div></div></a>`).join('');
+}
+function renderProducts(){
+  const list = filteredProducts();
+  $('#resultCount').textContent = `${list.length} منتج`;
+  $('#productGrid').innerHTML = list.length ? list.map(productCard).join('') : '<p class="muted">مفيش منتجات مطابقة.</p>';
+}
+function renderAll(){ renderCategories(); renderDeals(); renderProducts(); renderCart(); }
 
-loadProducts();
+window.addToCart = addToCart; window.setQty = setQty; window.chooseCategory = chooseCategory;
+$('#openCart')?.addEventListener('click', openCart); $('#mobileCart')?.addEventListener('click', openCart); $('#closeCart')?.addEventListener('click', closeCart);
+$('#cartDrawer')?.addEventListener('click', e => { if (e.target.id === 'cartDrawer') closeCart(); });
+$('#categoryFilter')?.addEventListener('change', e => { state.category = e.target.value; renderAll(); });
+$('#sortSelect')?.addEventListener('change', e => { state.sort = e.target.value; renderProducts(); });
+$('#searchForm')?.addEventListener('submit', e => { e.preventDefault(); state.q = $('#searchInput').value.trim(); renderProducts(); document.getElementById('products').scrollIntoView({behavior:'smooth'}); });
+fetch('/api/products').then(r => r.json()).then(data => { products = data; renderAll(); }).catch(() => { $('#productGrid').innerHTML = '<p>حصل خطأ في تحميل المنتجات.</p>'; });

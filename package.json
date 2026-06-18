@@ -1,13 +1,12 @@
 {
-  "name": "aerova-marketplace-pro",
-  "version": "1.2.1",
-  "description": "Aerova marketplace store",
+  "name": "aerova-market-winner",
+  "version": "2.0.0",
+  "description": "Fast mobile-first Aerova Egypt marketplace",
   "main": "server.js",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "start": "node server.js"
   },
   "engines": {
-    "node": "22.x"
+    "node": ">=18 <27"
   }
 }

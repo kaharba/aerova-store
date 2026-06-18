@@ -1,39 +1,39 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>إتمام الطلب | Aerova Egypt</title>
-  <link rel="icon" href="/logo.png" />
-  <link rel="stylesheet" href="/styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>إتمام الطلب | Aerova</title>
+  <link rel="icon" href="/logo.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <header class="site-header compact"><div class="header-main"><a class="brand" href="/"><img src="/logo.png" alt=""><span>AEROVA</span></a></div></header>
+  <header class="topbar simple">
+    <a class="brand" href="/"><img src="/logo.svg" alt="Aerova"></a>
+    <a class="back-link" href="/">رجوع للتسوق</a>
+  </header>
+
   <main class="checkout-page">
-    <a class="back-link" href="/">← رجوع للمتجر</a>
-    <h1>إتمام الطلب</h1>
-    <div class="checkout-layout">
-      <section class="checkout-panel">
-        <h2>بيانات التوصيل</h2>
-        <form id="checkoutForm" class="form-grid">
-          <input name="name" placeholder="الاسم" required>
-          <input name="phone" placeholder="رقم الموبايل" inputmode="tel" required>
-          <input name="altPhone" placeholder="رقم إضافي اختياري" inputmode="tel">
-          <input name="governorate" placeholder="المحافظة" required>
-          <input name="city" placeholder="المدينة / المنطقة" required>
-          <textarea name="address" placeholder="العنوان بالتفصيل" required></textarea>
-          <textarea name="notes" placeholder="ملاحظات اختياري"></textarea>
-          <button class="main-btn full" type="submit">تأكيد الطلب</button>
-          <p id="formMsg" class="form-msg"></p>
-        </form>
-      </section>
-      <aside class="checkout-panel order-box">
-        <h2>ملخص السلة</h2>
-        <div id="checkoutItems"></div>
-        <div id="checkoutTotals"></div>
-      </aside>
-    </div>
+    <section class="checkout-form-card">
+      <h1>إتمام الطلب</h1>
+      <p class="muted">ادفع عند الاستلام. هنأكد الطلب معاك قبل الشحن.</p>
+      <form id="checkoutForm" class="form-grid">
+        <label>الاسم<input name="name" required placeholder="اسمك بالكامل"></label>
+        <label>رقم الموبايل<input name="phone" required inputmode="tel" placeholder="01xxxxxxxxx"></label>
+        <label>المحافظة<input name="city" required placeholder="مثال: الدقهلية"></label>
+        <label class="full">العنوان بالتفصيل<textarea name="address" required placeholder="الشارع، المنطقة، علامة مميزة"></textarea></label>
+        <label class="full">ملاحظة اختيارية<textarea name="note" placeholder="أي ملاحظة للتوصيل"></textarea></label>
+        <button class="place-order" type="submit">تأكيد الطلب</button>
+      </form>
+    </section>
+    <aside class="order-summary">
+      <h2>ملخص الطلب</h2>
+      <div id="checkoutItems"></div>
+      <div class="cart-total"><span>الإجمالي</span><b id="checkoutTotal">0 جنيه</b></div>
+      <div class="trust-row"><span>دفع عند الاستلام</span><span>توصيل سريع</span></div>
+    </aside>
   </main>
-  <script src="/checkout.js"></script>
+
+  <script src="/checkout.js" defer></script>
 </body>
 </html>

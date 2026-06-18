@@ -1,78 +1,82 @@
 <!doctype html>
 <html lang="ar" dir="rtl">
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Aerova Egypt | متجر منتجات مختارة</title>
-  <meta name="description" content="Aerova Egypt - متجر منتجات مختارة للبيت والمكتب والسفر والاستخدام اليومي." />
-  <link rel="icon" href="/logo.png" />
-  <link rel="stylesheet" href="/styles.css" />
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#0f172a">
+  <title>Aerova Egypt | متجر منتجات عملية</title>
+  <meta name="description" content="Aerova Egypt - منتجات عملية مختارة للحياة اليومية.">
+  <link rel="icon" href="/logo.svg" type="image/svg+xml">
+  <link rel="preload" href="/styles.css" as="style">
+  <link rel="stylesheet" href="/styles.css">
 </head>
 <body>
-  <header class="site-header">
-    <div class="header-main">
-      <a class="brand" href="/" aria-label="Aerova Egypt">
-        <img src="/logo.png" alt="Aerova">
-        <span>AEROVA</span>
-      </a>
-      <button class="cart-pill" id="openCart" type="button" aria-label="فتح السلة">
-        <span>السلة</span><b id="cartCount">0</b>
-      </button>
-    </div>
-
-    <div class="search-line">
-      <input id="productSearch" type="search" placeholder="دور على منتج..." autocomplete="off" />
-      <select id="sortProducts" aria-label="ترتيب المنتجات">
-        <option value="default">الأحدث</option>
-        <option value="low">الأرخص</option>
-        <option value="high">الأغلى</option>
-      </select>
-    </div>
+  <header class="topbar">
+    <a class="brand" href="/" aria-label="Aerova home"><img src="/logo.svg" alt="Aerova"></a>
+    <form class="search" id="searchForm" role="search">
+      <input id="searchInput" type="search" placeholder="دور على منتج..." autocomplete="off">
+      <button type="submit">بحث</button>
+    </form>
+    <button class="cart-btn" id="openCart" type="button" aria-label="Cart">السلة <b id="cartCount">0</b></button>
   </header>
 
+  <nav class="chips" id="categoryChips" aria-label="الأقسام"></nav>
+
   <main>
-    <section class="hero-mini">
-      <div>
-        <span>منتجات مختارة</span>
-        <h1>كل يوم اختيارات جديدة بسعر مناسب.</h1>
-        <p>اطلب من الموقع — الدفع عند الاستلام.</p>
+    <section class="hero-card">
+      <div class="hero-copy">
+        <span class="eyebrow">Aerova Deals</span>
+        <h1>منتجات مختارة لحياة أسهل</h1>
+        <p>اشتري بسرعة، ادفع عند الاستلام، وتابع طلبك بسهولة.</p>
+        <a href="#products" class="primary-link">تسوق الآن</a>
       </div>
-      <img src="/cover.png" alt="Aerova products">
+      <div class="hero-stack" aria-hidden="true">
+        <div class="mini-card one">خصومات اليوم</div>
+        <div class="mini-card two">توصيل سريع</div>
+        <div class="mini-card three">منتجات ترند</div>
+      </div>
     </section>
 
-    <section class="service-row" aria-label="خدمات المتجر">
-      <div>🚚 شحن متاح</div>
-      <div>💵 دفع عند الاستلام</div>
-      <div>☎️ تأكيد قبل الشحن</div>
+    <section class="strip-section">
+      <div class="section-head"><h2>الأكثر طلبًا</h2><a href="#products">عرض الكل</a></div>
+      <div class="deal-strip" id="dealStrip"></div>
     </section>
 
-    <nav class="cat-row" id="categoryRow" aria-label="الأقسام"></nav>
+    <section class="store-layout" id="products">
+      <aside class="filters">
+        <h3>فلترة</h3>
+        <label>القسم</label>
+        <select id="categoryFilter"><option value="all">كل الأقسام</option></select>
+        <label>الترتيب</label>
+        <select id="sortSelect">
+          <option value="popular">الأكثر رواجًا</option>
+          <option value="low">السعر: الأقل</option>
+          <option value="high">السعر: الأعلى</option>
+        </select>
+      </aside>
 
-    <section class="deal-banner">
-      <b>عروض مختارة</b>
-      <span>منتجات عملية للبيت والمكتب والسفر</span>
+      <section class="product-area">
+        <div class="section-head compact"><h2>كل المنتجات</h2><span id="resultCount"></span></div>
+        <div class="product-grid" id="productGrid"></div>
+      </section>
     </section>
-
-    <section class="section-title">
-      <h2>المنتجات</h2>
-      <span id="resultCount">0 منتج</span>
-    </section>
-
-    <section class="products-grid" id="productsGrid"></section>
   </main>
 
-  <aside class="cart-drawer" id="cartDrawer" aria-label="سلة المشتريات">
-    <div class="cart-head">
-      <h3>السلة</h3>
-      <button id="closeCart" aria-label="إغلاق">×</button>
+  <aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
+    <div class="cart-panel">
+      <div class="cart-head"><h2>السلة</h2><button id="closeCart" type="button">×</button></div>
+      <div id="cartItems" class="cart-items"></div>
+      <div class="cart-total"><span>الإجمالي</span><b id="cartTotal">0 جنيه</b></div>
+      <a class="checkout-btn" href="/checkout">إتمام الطلب</a>
     </div>
-    <div id="cartItems" class="cart-items"></div>
-    <div class="cart-total"><span>الإجمالي</span><b id="cartTotal">0 جنيه</b></div>
-    <a class="main-btn full" href="/checkout">إتمام الطلب</a>
   </aside>
-  <div class="overlay" id="overlay"></div>
 
-  <footer class="footer-simple">Aerova Egypt © منتجات مختارة</footer>
-  <script src="/app.js"></script>
+  <nav class="mobile-nav">
+    <a href="/">الرئيسية</a>
+    <a href="#products">المنتجات</a>
+    <button id="mobileCart" type="button">السلة <b id="mobileCartCount">0</b></button>
+  </nav>
+
+  <script src="/app.js" defer></script>
 </body>
 </html>
