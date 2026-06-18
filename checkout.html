@@ -4,56 +4,36 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>إتمام الطلب | Aerova Egypt</title>
-  <meta name="description" content="إتمام الطلب - Aerova Egypt" />
   <link rel="icon" href="/logo.png" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body class="checkout-page">
-  <div class="page-bg" aria-hidden="true"></div>
-  <header class="topbar checkout-topbar">
-    <a class="brand" href="/"><img src="/logo.png" alt="Aerova logo"><span>AEROVA</span></a>
-    <a class="back-link" href="/">رجوع للمتجر</a>
-  </header>
-
-  <main class="checkout-layout">
-    <section class="checkout-hero card-surface reveal">
-      <span class="eyebrow">CHECKOUT</span>
-      <h1>إتمام الطلب</h1>
-      <p>راجع السلة واكتب بيانات التوصيل. الدفع عند الاستلام بعد تأكيد الطلب.</p>
-    </section>
-
-    <section class="checkout-grid">
-      <aside class="checkout-card order-side card-surface reveal">
-        <div class="side-head">
-          <h2>ملخص السلة</h2>
-          <a href="/">تعديل</a>
-        </div>
-        <div id="checkoutItems" class="checkout-items"></div>
-        <div class="totals" id="checkoutTotals"></div>
+<body>
+  <header class="site-header compact"><div class="header-main"><a class="brand" href="/"><img src="/logo.png" alt=""><span>AEROVA</span></a></div></header>
+  <main class="checkout-page">
+    <a class="back-link" href="/">← رجوع للمتجر</a>
+    <h1>إتمام الطلب</h1>
+    <div class="checkout-layout">
+      <section class="checkout-panel">
+        <h2>بيانات التوصيل</h2>
+        <form id="checkoutForm" class="form-grid">
+          <input name="name" placeholder="الاسم" required>
+          <input name="phone" placeholder="رقم الموبايل" inputmode="tel" required>
+          <input name="altPhone" placeholder="رقم إضافي اختياري" inputmode="tel">
+          <input name="governorate" placeholder="المحافظة" required>
+          <input name="city" placeholder="المدينة / المنطقة" required>
+          <textarea name="address" placeholder="العنوان بالتفصيل" required></textarea>
+          <textarea name="notes" placeholder="ملاحظات اختياري"></textarea>
+          <button class="main-btn full" type="submit">تأكيد الطلب</button>
+          <p id="formMsg" class="form-msg"></p>
+        </form>
+      </section>
+      <aside class="checkout-panel order-box">
+        <h2>ملخص السلة</h2>
+        <div id="checkoutItems"></div>
+        <div id="checkoutTotals"></div>
       </aside>
-
-      <form id="checkoutForm" class="checkout-card checkout-form-card card-surface reveal">
-        <div class="form-title">
-          <span>بيانات التوصيل</span>
-          <h2>اكتب بياناتك</h2>
-        </div>
-        <div class="form-grid">
-          <label>الاسم بالكامل<input required name="name" placeholder="مثال: يوسف أحمد"></label>
-          <label>رقم الموبايل<input required name="phone" inputmode="tel" pattern="01[0-9]{9}" placeholder="01xxxxxxxxx"></label>
-          <label>رقم بديل اختياري<input name="altPhone" inputmode="tel" placeholder="لو متاح"></label>
-          <label>المحافظة<input required name="governorate" placeholder="مثال: الدقهلية"></label>
-          <label>المدينة / المنطقة<input required name="city" placeholder="مثال: المنصورة"></label>
-        </div>
-        <label>العنوان بالتفصيل<textarea required name="address" placeholder="الشارع، رقم البيت، الدور، علامة مميزة..."></textarea></label>
-        <label>ملاحظات اختيارية<textarea name="notes" placeholder="لون معين، وقت مناسب للتواصل، أي ملاحظة..."></textarea></label>
-        <div class="checkout-note">دفع عند الاستلام · تأكيد قبل الشحن</div>
-        <button class="btn primary full" type="submit">تأكيد الطلب الآن</button>
-        <p class="form-msg" id="formMsg"></p>
-      </form>
-    </section>
+    </div>
   </main>
-
-  <footer><img src="/logo.png" alt="Aerova"><p>Aerova Egypt — منتجات عملية كل يوم</p></footer>
   <script src="/checkout.js"></script>
 </body>
 </html>

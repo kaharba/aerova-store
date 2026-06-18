@@ -4,72 +4,49 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>تفاصيل المنتج | Aerova Egypt</title>
-  <meta name="description" content="صفحة تفاصيل المنتج من Aerova Egypt" />
   <link rel="icon" href="/logo.png" />
   <link rel="stylesheet" href="/styles.css" />
 </head>
-<body class="product-page">
-  <div class="page-bg" aria-hidden="true"></div>
-
-  <header class="topbar">
-    <a class="brand" href="/"><img src="/logo.png" alt="Aerova logo"><span>AEROVA</span></a>
-    <nav class="desktop-nav"><a href="/">الرئيسية</a><a href="/#products">المنتجات</a></nav>
-    <button class="cart-btn" id="openCart" type="button">السلة <b id="cartCount">0</b></button>
+<body>
+  <header class="site-header compact">
+    <div class="header-main">
+      <a class="brand" href="/"><img src="/logo.png" alt="Aerova"><span>AEROVA</span></a>
+      <button class="cart-pill" id="openCart" type="button">السلة <b id="cartCount">0</b></button>
+    </div>
   </header>
 
-  <main class="product-layout" id="productPage">
-    <section class="product-shell reveal">
-      <div class="product-gallery card-surface">
-        <img id="productImage" src="/logo.png" alt="">
+  <main id="productPage" class="product-page">
+    <a class="back-link" href="/">← رجوع للمتجر</a>
+    <section class="pdp-card">
+      <div class="pdp-image-wrap"><img id="productImage" src="/logo.png" alt=""></div>
+      <div class="pdp-info">
+        <span id="productCategory" class="category-tag"></span>
+        <h1 id="productName"></h1>
+        <div class="rating big">★★★★★ <span id="productRating"></span></div>
+        <p id="productDescription" class="short-desc"></p>
+        <div class="pdp-price"><strong id="productPrice"></strong><del id="productOldPrice"></del></div>
+        <div id="productFeatures" class="feature-list"></div>
       </div>
-
-      <div class="product-panel card-surface">
-        <span class="eyebrow" id="productCategory">AEROVA</span>
-        <h1 id="productName">جاري تحميل المنتج...</h1>
-        <p id="productDescription"></p>
-        <div class="product-price-row">
-          <b id="productPrice">0 جنيه</b>
-          <del id="productOldPrice"></del>
-        </div>
-        <div class="product-features-large" id="productFeatures"></div>
-        <div class="quantity-box">
-          <span>الكمية</span>
-          <div>
-            <button type="button" id="minusQty">−</button>
-            <input id="productQty" type="number" value="1" min="1" aria-label="الكمية">
-            <button type="button" id="plusQty">+</button>
-          </div>
-        </div>
-        <div class="detail-actions">
-          <button class="btn primary" id="detailBuy">اشتري الآن</button>
-          <button class="btn secondary" id="detailAdd">أضف للسلة</button>
-        </div>
-        <div class="secure-strip"><span>دفع عند الاستلام</span><span>تأكيد قبل الشحن</span><span>استبدال حسب الحالة</span></div>
-      </div>
+      <aside class="buy-box">
+        <b>الدفع عند الاستلام</b>
+        <span>تأكيد هاتفي قبل الشحن</span>
+        <div class="qty-picker"><button id="minusQty">-</button><input id="productQty" value="1" inputmode="numeric"><button id="plusQty">+</button></div>
+        <button class="main-btn" id="detailAdd">أضف للسلة</button>
+        <button class="dark-btn" id="detailBuy">اشتري الآن</button>
+      </aside>
     </section>
 
-    <section class="info-blocks reveal">
-      <article class="card-surface"><b>تفاصيل المنتج</b><p id="longDescription">منتج عملي مناسب للاستخدام اليومي.</p></article>
-      <article class="card-surface"><b>الشحن والدفع</b><p>الدفع عند الاستلام ويتم تأكيد الطلب معاك قبل التجهيز.</p></article>
-      <article class="card-surface"><b>قبل الشراء</b><p>راجع الصورة، السعر، والكمية قبل إتمام الطلب.</p></article>
-    </section>
-
-    <section class="section-head reveal">
-      <span>منتجات تانية</span>
-      <h2>اختيارات ممكن تعجبك</h2>
-    </section>
-    <section class="products-grid related-grid" id="relatedProducts"></section>
+    <section class="section-title"><h2>منتجات مشابهة</h2></section>
+    <section class="products-grid" id="relatedProducts"></section>
   </main>
 
-  <aside class="cart-drawer" id="cartDrawer" aria-label="سلة المشتريات">
-    <div class="cart-head"><h3>سلة المشتريات</h3><button id="closeCart" aria-label="إغلاق">×</button></div>
+  <aside class="cart-drawer" id="cartDrawer">
+    <div class="cart-head"><h3>السلة</h3><button id="closeCart">×</button></div>
     <div id="cartItems" class="cart-items"></div>
     <div class="cart-total"><span>الإجمالي</span><b id="cartTotal">0 جنيه</b></div>
-    <a class="btn primary full" href="/checkout">إتمام الطلب</a>
+    <a class="main-btn full" href="/checkout">إتمام الطلب</a>
   </aside>
   <div class="overlay" id="overlay"></div>
-
-  <footer><img src="/logo.png" alt="Aerova"><p>Aerova Egypt — منتجات عملية كل يوم</p></footer>
   <script src="/product.js"></script>
 </body>
 </html>

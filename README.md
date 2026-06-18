@@ -1,17 +1,10 @@
-# Aerova Egypt Store - Flat Render Ready
+Aerova Egypt Store
 
-ارفع كل الملفات الموجودة داخل هذا الفولدر مباشرة في GitHub repo.
+Run:
+npm start
 
-Render settings:
-- Root Directory: leave empty
-- Build Command: npm install
-- Start Command: npm start
-
-Environment Variables:
-- ADMIN_PASSWORD: اكتب باسورد لوحة التحكم
-
-URLs:
-- Home: /
-- Checkout: /checkout
-- Admin hidden page: /admin
-- Health check: /api/health
+Render:
+Build Command: npm install
+Start Command: npm start
+Root Directory: empty
+Environment Variable: ADMIN_PASSWORD
