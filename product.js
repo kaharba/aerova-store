@@ -48,13 +48,13 @@ function renderRelated(){
   box.innerHTML = related.map(item => `
     <article class="product-card reveal">
       ${item.badge ? `<span class="badge">${escapeHtml(item.badge)}</span>` : ''}
-      <a class="pic" href="/product/${encodeURIComponent(item.id)}"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}"></a>
+      <a class="pic" href="/product/${encodeURIComponent(item.id)}"><img src="${escapeHtml(item.image)}" alt="${escapeHtml(item.name)}" loading="lazy"></a>
       <div class="product-info">
-        <div class="category-chip">${escapeHtml(item.category || 'منتجات متنوعة')}</div>
+        <span class="category-chip">${escapeHtml(item.category || 'منتجات متنوعة')}</span>
         <h3><a href="/product/${encodeURIComponent(item.id)}">${escapeHtml(item.name)}</a></h3>
         <p>${escapeHtml(item.description || '')}</p>
         <div class="price"><b>${money(item.price)}</b>${item.oldPrice ? `<del>${money(item.oldPrice)}</del>` : ''}</div>
-        <div class="product-actions two"><button class="btn primary" onclick="addProductToCart('${escapeHtml(item.id)}', 1)">أضف للسلة</button><a class="btn ghost" href="/product/${encodeURIComponent(item.id)}">التفاصيل</a></div>
+        <div class="product-actions"><button class="btn primary" onclick="addProductToCart('${escapeHtml(item.id)}', 1)">أضف</button><a class="btn secondary" href="/product/${encodeURIComponent(item.id)}">التفاصيل</a></div>
       </div>
     </article>
   `).join('') || '';

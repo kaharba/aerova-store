@@ -18,7 +18,7 @@ async function loadProducts() {
     updateCart();
     revealOnScroll();
   } catch (error) {
-    if (grid) grid.innerHTML = '<p class="order-summary">حصل خطأ بسيط في تحميل المنتجات. جرّب تحدث الصفحة.</p>';
+    if (grid) grid.innerHTML = '<p class="empty-state">حصل خطأ في تحميل المنتجات. جرّب تحدث الصفحة.</p>';
   }
 }
 
@@ -40,41 +40,34 @@ function renderProducts() {
     return `
     <article class="product-card reveal">
       ${product.badge ? `<span class="badge">${escapeHtml(product.badge)}</span>` : ''}
-      <a class="pic" href="/product/${id}" aria-label="تفاصيل ${escapeHtml(product.name)}"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}"></a>
+      <a class="pic" href="/product/${id}" aria-label="تفاصيل ${escapeHtml(product.name)}"><img src="${escapeHtml(product.image)}" alt="${escapeHtml(product.name)}" loading="lazy"></a>
       <div class="product-info">
-        <div class="category-chip">${escapeHtml(product.category || 'منتجات متنوعة')}</div>
+        <span class="category-chip">${escapeHtml(product.category || 'منتجات متنوعة')}</span>
         <h3><a href="/product/${id}">${escapeHtml(product.name)}</a></h3>
         <p>${escapeHtml(product.description || '')}</p>
-        <div class="features-list">${(product.features || []).slice(0, 3).map(feature => `<span>${escapeHtml(feature)}</span>`).join('')}</div>
         <div class="price"><b>${money(product.price)}</b>${product.oldPrice ? `<del>${money(product.oldPrice)}</del>` : ''}</div>
         <div class="product-actions">
-          <button class="btn primary" onclick="addToCart('${escapeHtml(product.id)}')">أضف للسلة</button>
-          <a class="btn ghost" href="/product/${id}">صفحة المنتج</a>
-          <input class="qty" id="qty-${escapeHtml(product.id)}" type="number" value="1" min="1" aria-label="الكمية">
+          <button class="btn primary" onclick="addToCart('${escapeHtml(product.id)}')">أضف</button>
+          <a class="btn secondary" href="/product/${id}">التفاصيل</a>
         </div>
       </div>
     </article>`;
-  }).join('') || '<p class="order-summary">مفيش منتجات مطابقة. جرّب كلمة بحث تانية.</p>';
+  }).join('') || '<p class="empty-state">مفيش منتجات مطابقة. جرّب كلمة تانية.</p>';
   revealOnScroll();
 }
 
 function addToCart(id) {
   const product = products.find(item => item.id === id);
   if (!product) return;
-  const qty = Math.max(1, Number($(`#qty-${CSS.escape(id)}`)?.value || 1));
   const found = cart.find(item => item.id === id);
-  if (found) found.qty += qty;
-  else cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, qty });
+  if (found) found.qty += 1;
+  else cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, qty: 1 });
   saveCart();
   updateCart();
   openCart();
 }
 
-function buyNow(id) {
-  addToCart(id);
-  window.location.href = '/checkout';
-}
-
+function buyNow(id) { addToCart(id); window.location.href = '/checkout'; }
 function removeFromCart(id) { cart = cart.filter(item => item.id !== id); saveCart(); updateCart(); }
 function changeQty(id, delta) {
   const item = cart.find(row => row.id === id);
@@ -97,45 +90,38 @@ function updateCart() {
           <h4>${escapeHtml(item.name)}</h4>
           <small>${money(item.price)} × ${item.qty}</small>
           <div class="qty-controls">
-            <button class="mini-btn status" onclick="changeQty('${escapeHtml(item.id)}', 1)">+</button>
-            <button class="mini-btn status" onclick="changeQty('${escapeHtml(item.id)}', -1)">-</button>
+            <button class="mini-btn" onclick="changeQty('${escapeHtml(item.id)}', 1)">+</button>
+            <button class="mini-btn" onclick="changeQty('${escapeHtml(item.id)}', -1)">-</button>
+            <button class="mini-btn danger" onclick="removeFromCart('${escapeHtml(item.id)}')">حذف</button>
           </div>
         </div>
-        <button onclick="removeFromCart('${escapeHtml(item.id)}')">حذف</button>
       </div>
-    `).join('') || '<p class="order-summary">السلة فاضية.</p>';
+    `).join('') || '<p class="empty-state">السلة فاضية.</p>';
   }
 }
 
 function openCart() { cartDrawer?.classList.add('open'); overlay?.classList.add('open'); }
 function closeCart() { cartDrawer?.classList.remove('open'); overlay?.classList.remove('open'); }
 function revealOnScroll(){
-  const observer = new IntersectionObserver(entries => entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('visible'); }), { threshold: .12 });
+  const observer = new IntersectionObserver(entries => entries.forEach(entry => { if(entry.isIntersecting) entry.target.classList.add('visible'); }), { threshold: .08 });
   document.querySelectorAll('.reveal:not(.visible)').forEach(el => observer.observe(el));
 }
 
-if ($('#openCart')) $('#openCart').onclick = openCart;
-if ($('#closeCart')) $('#closeCart').onclick = closeCart;
-if (overlay) overlay.onclick = closeCart;
-if ($('#heroCartBtn')) $('#heroCartBtn').onclick = openCart;
+$('#openCart')?.addEventListener('click', openCart);
+$('#closeCart')?.addEventListener('click', closeCart);
+overlay?.addEventListener('click', closeCart);
+$('#heroCartBtn')?.addEventListener('click', openCart);
 
 document.querySelectorAll('.filter').forEach(button => {
-  button.onclick = () => {
+  button.addEventListener('click', () => {
     document.querySelectorAll('.filter').forEach(item => item.classList.remove('active'));
     button.classList.add('active');
     currentCat = button.dataset.cat;
     renderProducts();
-  };
+  });
 });
 
-$('#productSearch')?.addEventListener('input', event => {
-  searchQuery = event.target.value || '';
-  renderProducts();
-});
-
-$('#sortProducts')?.addEventListener('change', event => {
-  sortMode = event.target.value || 'default';
-  renderProducts();
-});
+$('#productSearch')?.addEventListener('input', event => { searchQuery = event.target.value || ''; renderProducts(); });
+$('#sortProducts')?.addEventListener('change', event => { sortMode = event.target.value || 'default'; renderProducts(); });
 
 loadProducts();
